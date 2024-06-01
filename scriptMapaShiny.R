@@ -1,10 +1,8 @@
-dados <- read.csv("datasets/2021/dataset_merged_2021.csv")
+dados <- read.csv("datasets/2021/dataset_merged_2021_mes.csv")
 library(leaflet)
 library(shiny)
 
 # UI
-
-dados$ano_mes_numerico <- as.numeric(gsub("-", "", dados$ano_mes))
 
 ui <- fluidPage(
   titlePanel("Mapa Interativo de Internações"),
@@ -12,13 +10,13 @@ ui <- fluidPage(
     sidebarPanel(
       sliderInput("mes",
                   "Selecione o mês:",
-                  min = min(dados$ano_mes_numerico),
-                  max = max(dados$ano_mes_numerico),
-                  value = min(dados$ano_mes_numerico),
+                  min = min(dados$mes),
+                  max = max(dados$mes),
+                  value = min(dados$mes),
                   step = 1)
     ),
     mainPanel(
-      leafletOutput("mapa")
+      leafletOutput("mapa", width = "100%", height = "900px")
     )
   )
 )
@@ -40,7 +38,7 @@ server <- function(input, output) {
   }
   
   output$mapa <- renderLeaflet({
-    subset_dados <- subset(dados, ano_mes_numerico == input$mes)
+    subset_dados <- subset(dados, mes == input$mes)
     
     raios_normalizados <- normaliza_raio(subset_dados[["diferenca"]])
     
