@@ -1,6 +1,8 @@
-dados <- read.csv("datasets/2021/dataset_merged_2021_mes.csv")
 library(leaflet)
 library(shiny)
+
+# Carregar o csv
+dados <- read.csv("datasets/2021/datasetFinal.csv")
 
 # UI
 
@@ -20,7 +22,6 @@ ui <- fluidPage(
     )
   )
 )
-
 
 # SERVER 
 
@@ -47,11 +48,14 @@ server <- function(input, output) {
       setView(lng = -53.0, lat = -29.0, zoom = 6)
     
     mapa <- mapa %>%
-      addCircleMarkers(lng = subset_dados[["longitude"]],
-                       lat = subset_dados[["latitude"]],
-                       radius = raios_normalizados,
-                       popup = paste("Cidade:", subset_dados[["municipio"]], "<br>",
-                                     "Internações:", subset_dados[["diferenca"]]))
+      addCircleMarkers(
+        lng = subset_dados[["longitude"]],
+        lat = subset_dados[["latitude"]],
+        radius = raios_normalizados,
+        popup = paste("Cidade:", subset_dados[["municipio"]], "<br>",
+                      "Internações:", subset_dados[["diferenca"]], "<br>",
+                      "/1000 habitantes: ", subset_dados[["diferenca_por_1000__habitantes"]])
+      )
     
     mapa
   })
