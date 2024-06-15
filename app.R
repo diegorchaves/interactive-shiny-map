@@ -2,7 +2,7 @@ library(leaflet)
 library(shiny)
 
 # Carregar o csv
-dados <- read.csv("datasets/2021/datasetFinal.csv")
+dados <- read.csv("./datasetDefinitivo.csv")
 
 # UI
 
@@ -53,8 +53,8 @@ server <- function(input, output) {
         lat = subset_dados[["latitude"]],
         radius = raios_normalizados,
         popup = paste("Cidade:", subset_dados[["municipio"]], "<br>",
-                      "Internações:", subset_dados[["diferenca"]], "<br>",
-                      "/1000 habitantes: ", subset_dados[["diferenca_por_1000__habitantes"]])
+                      "Internações no mês:", subset_dados[["diferenca"]], "<br>",
+                      "A cada 1000 habitantes: ", subset_dados[["internacoes_por_1000"]])
       )
     
     mapa
