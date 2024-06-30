@@ -5,7 +5,6 @@ library(shiny)
 dados <- read.csv("./datasetDefinitivo.csv")
 
 # UI
-
 ui <- fluidPage(
   titlePanel("Mapa Interativo de Internações"),
   sidebarLayout(
@@ -24,8 +23,7 @@ ui <- fluidPage(
 )
 
 # SERVER 
-
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   normaliza_raio <- function(diferenca) {
     max_raio <- 20
@@ -38,16 +36,25 @@ server <- function(input, output) {
     }
   }
   
+  # Variável reativa para armazenar o estado do mapa
+  estado_mapa <- reactiveValues(lng = -53.0, lat = -29.0, zoom = 6)
+  
+  observe({
+    invalidateLater(1000, session)
+    if (!is.null(input$mapa_center)) {
+      estado_mapa$lng <- input$mapa_center$lng
+      estado_mapa$lat <- input$mapa_center$lat
+      estado_mapa$zoom <- input$mapa_zoom
+    }
+  })
+  
   output$mapa <- renderLeaflet({
     subset_dados <- subset(dados, mes == input$mes)
-    
     raios_normalizados <- normaliza_raio(subset_dados[["diferenca"]])
     
-    mapa <- leaflet() %>%
+    leaflet() %>%
       addTiles() %>%
-      setView(lng = -53.0, lat = -29.0, zoom = 6)
-    
-    mapa <- mapa %>%
+      setView(lng = estado_mapa$lng, lat = estado_mapa$lat, zoom = estado_mapa$zoom) %>%
       addCircleMarkers(
         lng = subset_dados[["longitude"]],
         lat = subset_dados[["latitude"]],
@@ -56,11 +63,8 @@ server <- function(input, output) {
                       "Internações no mês:", subset_dados[["diferenca"]], "<br>",
                       "A cada 1000 habitantes: ", subset_dados[["internacoes_por_1000"]])
       )
-    
-    mapa
   })
 }
 
 # RODANDO
-
 shinyApp(ui = ui, server = server)
